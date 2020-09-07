@@ -167,3 +167,35 @@ function getCurrent(city) {
     });
 }
 
+
+function saveLoc(loc){
+    if (savedLocations === null) {
+        savedLocations = [loc];
+    }
+    else if (savedLocations.indexOf(loc) === -1) {
+        savedLocations.push(loc);
+    }
+    localStorage.setItem("weathercities", JSON.stringify(savedLocations));
+    showPrevious();
+}
+
+$(document).on("click", "#loc-btn", function () {
+    clear();
+    currentLoc = $(this).text();
+    showPrevious();
+    getCurrent(currentLoc);
+});
+
+$("#searchbtn").on("click", function () {
+    event.preventDefault();
+    var loc = $("#searchinput").val().trim();
+    if (loc !== "") {
+        clear();
+        currentLoc = loc;
+        saveLoc(loc);
+        $("#searchinput").val("");
+        getCurrent(loc);
+    }
+});
+
+initialize();

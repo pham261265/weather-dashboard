@@ -1,10 +1,23 @@
-.searcharea {
+.search {
     background-color: #e6f2ff;
-    padding: 20px;
+    padding: 25px;
+}
+
+
+#searchbtn{
+    padding: 5px 6px 0px 5px;
+
 }
 
 .uvindex {
-    padding: 5px;
+    padding: 6px;
+}
+
+.forecast {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    margin: 10px 0px;
 }
 
 .one-fifth {
@@ -22,16 +35,3 @@
 .one-fifth:last-child{
     margin-right: 0px;
 }
-
-.forecast {
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    margin: 10px 0px;
-}
-
-#searchbtn{
-    padding: 6px 5px 0px 5px;
-
-}
-© 2020 GitHub, Inc.

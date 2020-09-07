@@ -1,19 +1,14 @@
 var savedLocations = [];
 var currentLoc;
 
-function success(position) {
-    var lat = position.coords.latitude;
-    var lon = position.coords.longitude;
-    var queryURL = "https://api.openweathermap.org/data/2.5/weather?lat=" + lat + "&lon=" + lon + "&APPID=7e4c7478cc7ee1e11440bf55a8358ec3";
-    $.ajax({
-        url: queryURL,
-        method: "GET"
-    }).then(function (response) {
-        currentLoc = response.name;
-        saveLoc(response.name);
-        getCurrent(currentLoc);
-    });
 
+function error(){
+    currentLoc = "Raleigh"
+    getCurrent(currentLoc);
+}
+
+function clear() {
+    $("#earthforecast").empty();
 }
 
 function initialize() {
@@ -35,6 +30,22 @@ function initialize() {
 
 }
 
+function success(position) {
+    var lat = position.coords.latitude;
+    var lon = position.coords.longitude;
+    var queryURL = "https://api.openweathermap.org/data/2.5/weather?lat=" + lat + "&lon=" + lon + "&APPID=7e4c7478cc7ee1e11440bf55a8358ec3";
+    $.ajax({
+        url: queryURL,
+        method: "GET"
+    }).then(function (response) {
+        currentLoc = response.name;
+        saveLoc(response.name);
+        getCurrent(currentLoc);
+    });
+
+}
+
+
 function showPrevious() {
     if (savedLocations) {
         $("#prevSearches").empty();
@@ -51,6 +62,70 @@ function showPrevious() {
         }
         $("#prevSearches").append(btns);
     }
+}
+
+function getCurrent(city) {
+    var queryURL = "https://api.openweathermap.org/data/2.5/weather?q=" + city + "&APPID=7e4c7478cc7ee1e11440bf55a8358ec3&units=imperial";
+    $.ajax({
+        url: queryURL,
+        method: "GET",
+        error: function (){
+            savedLocations.splice(savedLocations.indexOf(city), 1);
+            localStorage.setItem("weathercities", JSON.stringify(savedLocations));
+            initialize();
+        }
+    }).then(function (response) {
+        var currCard = $("<div>").attr("class", "card bg-light");
+        $("#earthforecast").append(currCard);
+
+        var currCardHead = $("<div>").attr("class", "card-header").text("Current weather for " + response.name);
+        currCard.append(currCardHead);
+
+        var cardRow = $("<div>").attr("class", "row no-gutters");
+        currCard.append(cardRow);
+
+        var iconURL = "https://openweathermap.org/img/wn/" + response.weather[0].icon + "@2x.png";
+
+        var imgDiv = $("<div>").attr("class", "col-md-4").append($("<img>").attr("src", iconURL).attr("class", "card-img"));
+        cardRow.append(imgDiv);
+
+        var textDiv = $("<div>").attr("class", "col-md-8");
+        var cardBody = $("<div>").attr("class", "card-body");
+        textDiv.append(cardBody);
+        cardBody.append($("<h3>").attr("class", "card-title").text(response.name));
+        var currdate = moment(response.dt, "X").format("dddd, MMMM Do YYYY, h:mm a");
+        cardBody.append($("<p>").attr("class", "card-text").append($("<small>").attr("class", "text-muted").text("Last updated: " + currdate)));
+        cardBody.append($("<p>").attr("class", "card-text").html("Temperature: " + response.main.temp + " &#8457;"));
+
+        cardBody.append($("<p>").attr("class", "card-text").text("Wind Speed: " + response.wind.speed + " MPH"));
+        var uvURL = "https://api.openweathermap.org/data/2.5/uvi?appid=7e4c7478cc7ee1e11440bf55a8358ec3&lat=" + response.coord.lat + "&lon=" + response.coord.lat;
+        $.ajax({
+            url: uvURL,
+            method: "GET"
+        }).then(function (uvresponse) {
+            var uvindex = uvresponse.value;
+            var bgcolor;
+            if (uvindex <= 3) {
+                bgcolor = "green";
+            }
+            else if (uvindex >= 3 || uvindex <= 6) {
+                bgcolor = "yellow";
+            }
+            else if (uvindex >= 6 || uvindex <= 8) {
+                bgcolor = "orange";
+            }
+            else {
+                bgcolor = "red";
+            }
+            var uvdisp = $("<p>").attr("class", "card-text").text("UV Index: ");
+            uvdisp.append($("<span>").attr("class", "uvindex").attr("style", ("background-color:" + bgcolor)).text(uvindex));
+            cardBody.append(uvdisp);
+
+        });
+
+        cardRow.append(textDiv);
+        getForecast(response.id);
+    });
 }
 
 function getForecast(city) {
@@ -86,77 +161,6 @@ function getForecast(city) {
     });
 }
 
-function getCurrent(city) {
-    var queryURL = "https://api.openweathermap.org/data/2.5/weather?q=" + city + "&APPID=7e4c7478cc7ee1e11440bf55a8358ec3&units=imperial";
-    $.ajax({
-        url: queryURL,
-        method: "GET",
-        error: function (){
-            savedLocations.splice(savedLocations.indexOf(city), 1);
-            localStorage.setItem("weathercities", JSON.stringify(savedLocations));
-            initialize();
-        }
-    }).then(function (response) {
-      
-        var currCard = $("<div>").attr("class", "card bg-light");
-        $("#earthforecast").append(currCard);
-
-      
-        var currCardHead = $("<div>").attr("class", "card-header").text("Current weather for " + response.name);
-        currCard.append(currCardHead);
-
-        var cardRow = $("<div>").attr("class", "row no-gutters");
-        currCard.append(cardRow);
-
-        
-        var iconURL = "https://openweathermap.org/img/wn/" + response.weather[0].icon + "@2x.png";
-
-        var imgDiv = $("<div>").attr("class", "col-md-4").append($("<img>").attr("src", iconURL).attr("class", "card-img"));
-        cardRow.append(imgDiv);
-
-        var textDiv = $("<div>").attr("class", "col-md-8");
-        var cardBody = $("<div>").attr("class", "card-body");
-        textDiv.append(cardBody);
-      
-        cardBody.append($("<h3>").attr("class", "card-title").text(response.name));
-        
-        var currdate = moment(response.dt, "X").format("dddd, MMMM Do YYYY, h:mm a");
-        cardBody.append($("<p>").attr("class", "card-text").append($("<small>").attr("class", "text-muted").text("Last updated: " + currdate)));
-        cardBody.append($("<p>").attr("class", "card-text").html("Temperature: " + response.main.temp + " &#8457;"));
-        cardBody.append($("<p>").attr("class", "card-text").text("Humidity: " + response.main.humidity + "%"));
-        cardBody.append($("<p>").attr("class", "card-text").text("Wind Speed: " + response.wind.speed + " MPH"));
-
-        var uvURL = "https://api.openweathermap.org/data/2.5/uvi?appid=7e4c7478cc7ee1e11440bf55a8358ec3&lat=" + response.coord.lat + "&lon=" + response.coord.lat;
-        $.ajax({
-            url: uvURL,
-            method: "GET"
-        }).then(function (uvresponse) {
-            var uvindex = uvresponse.value;
-            var bgcolor;
-            if (uvindex <= 3) {
-                bgcolor = "green";
-            }
-            else if (uvindex >= 3 || uvindex <= 6) {
-                bgcolor = "yellow";
-            }
-            else if (uvindex >= 6 || uvindex <= 8) {
-                bgcolor = "orange";
-            }
-            else {
-                bgcolor = "red";
-            }
-            var uvdisp = $("<p>").attr("class", "card-text").text("UV Index: ");
-            uvdisp.append($("<span>").attr("class", "uvindex").attr("style", ("background-color:" + bgcolor)).text(uvindex));
-            cardBody.append(uvdisp);
-
-        });
-
-        cardRow.append(textDiv);
-        getForecast(response.id);
-    });
-}
-
-
 function saveLoc(loc){
     if (savedLocations === null) {
         savedLocations = [loc];
@@ -167,13 +171,6 @@ function saveLoc(loc){
     localStorage.setItem("weathercities", JSON.stringify(savedLocations));
     showPrevious();
 }
-
-$(document).on("click", "#loc-btn", function () {
-    clear();
-    currentLoc = $(this).text();
-    showPrevious();
-    getCurrent(currentLoc);
-});
 
 $("#searchbtn").on("click", function () {
     event.preventDefault();
@@ -187,4 +184,11 @@ $("#searchbtn").on("click", function () {
     }
 });
 
-initialize();
+$(document).on("click", "#loc-btn", function () {
+    clear();
+    currentLoc = $(this).text();
+    showPrevious();
+    getCurrent(currentLoc);
+});
+
+initialize()

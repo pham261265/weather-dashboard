@@ -16,17 +16,6 @@ function success(position) {
 
 }
 
-
-
-function clear() {
-    $("#earthforecast").empty();
-}
-
-function error(){
-    currentLoc = "Raleigh"
-    getCurrent(currentLoc);
-}
-
 function initialize() {
     savedLocations = JSON.parse(localStorage.getItem("weathercities"));
     var lastSearch;

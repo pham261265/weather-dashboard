@@ -1,13 +1,13 @@
+
+.one-fifth:last-child{
+    margin-right: 0px;
+}
+
 .search {
     background-color: #e6f2ff;
     padding: 25px;
 }
 
-
-#searchbtn{
-    padding: 5px 6px 0px 5px;
-
-}
 
 .uvindex {
     padding: 6px;
@@ -30,8 +30,4 @@
 
 .one-fifth:first-child {
     margin-left: 0px;
-}
-
-.one-fifth:last-child{
-    margin-right: 0px;
 }

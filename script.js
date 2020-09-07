@@ -30,6 +30,18 @@ function initialize() {
 
 }
 
+
+function saveLoc(loc){
+    if (savedLocations === null) {
+        savedLocations = [loc];
+    }
+    else if (savedLocations.indexOf(loc) === -1) {
+        savedLocations.push(loc);
+    }
+    localStorage.setItem("weathercities", JSON.stringify(savedLocations));
+    showPrevious();
+}
+
 function success(position) {
     var lat = position.coords.latitude;
     var lon = position.coords.longitude;
@@ -129,7 +141,7 @@ function getCurrent(city) {
 }
 
 function getForecast(city) {
-    var queryURL = "https://api.openweathermap.org/data/2.5/forecast?id=" + city + "&APPID=7e4c7478cc7ee1e11440bf55a8358ec3&units=imperial";
+    var queryURL = "https://api.openweathermap.org/data/2.5/forecast?id=" + city + "&AIzaSyBq1jLq67DArZNyj-Grlf7hO_zRim96KoQ";
     $.ajax({
         url: queryURL,
         method: "GET"
@@ -161,16 +173,6 @@ function getForecast(city) {
     });
 }
 
-function saveLoc(loc){
-    if (savedLocations === null) {
-        savedLocations = [loc];
-    }
-    else if (savedLocations.indexOf(loc) === -1) {
-        savedLocations.push(loc);
-    }
-    localStorage.setItem("weathercities", JSON.stringify(savedLocations));
-    showPrevious();
-}
 
 $("#searchbtn").on("click", function () {
     event.preventDefault();
